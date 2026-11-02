@@ -1,0 +1,42 @@
+# Production setup behind an existing Traefik instance.
+#
+#   curl -O https://raw.githubusercontent.com/danielgnth/tum-calendar-proxy/main/deploy/docker-compose.yml
+#   curl -o .env https://raw.githubusercontent.com/danielgnth/tum-calendar-proxy/main/deploy/.env.example
+#   # edit .env, then:
+#   docker compose up -d
+
+name: tum-calendar
+
+services:
+  calendar:
+    image: ${IMAGE:-ghcr.io/danielgnth/tum-calendar-proxy:latest}
+    restart: unless-stopped
+    environment:
+      PUBLIC_URL: https://${DOMAIN:?set DOMAIN in .env}
+      REGISTRATION: ${REGISTRATION:-open}
+      CACHE_TTL_SECONDS: ${CACHE_TTL_SECONDS:-300}
+    volumes:
+      - calendar-data:/data
+    networks:
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: ${TRAEFIK_NETWORK:-traefik}
+      traefik.http.routers.tum-calendar.rule: Host(`${DOMAIN}`)
+      traefik.http.routers.tum-calendar.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.tum-calendar.tls: "true"
+      traefik.http.routers.tum-calendar.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-letsencrypt}
+      traefik.http.routers.tum-calendar.middlewares: tum-calendar-headers
+      traefik.http.middlewares.tum-calendar-headers.headers.stsSeconds: "31536000"
+      traefik.http.middlewares.tum-calendar-headers.headers.contentTypeNosniff: "true"
+      traefik.http.middlewares.tum-calendar-headers.headers.frameDeny: "true"
+      traefik.http.middlewares.tum-calendar-headers.headers.referrerPolicy: no-referrer
+      traefik.http.services.tum-calendar.loadbalancer.server.port: "4321"
+
+volumes:
+  calendar-data:
+
+networks:
+  traefik:
+    name: ${TRAEFIK_NETWORK:-traefik}
+    external: true

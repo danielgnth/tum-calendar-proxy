@@ -1,0 +1,19 @@
+services:
+  calendar:
+    build: .
+    image: tum-calendar-proxy
+    restart: unless-stopped
+    ports:
+      - "4321:4321"
+    environment:
+      # Public address used in the feed and event links. Leave empty to derive it
+      # from each request (works behind a reverse proxy that sets X-Forwarded-*).
+      PUBLIC_URL: ""
+      # "closed": only calendars that already logged in once can use the server.
+      REGISTRATION: open
+      CACHE_TTL_SECONDS: 300
+    volumes:
+      - calendar-data:/data
+
+volumes:
+  calendar-data:

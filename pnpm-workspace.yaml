@@ -1,0 +1,6 @@
+minimumReleaseAgeExclude:
+  - '@vitejs/plugin-react@6.2.1'
+
+# esbuild's postinstall only re-checks its binary, which pnpm already installs.
+allowBuilds:
+  esbuild: false
