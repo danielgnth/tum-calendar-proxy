@@ -107,6 +107,11 @@ web/src/                 React UI (dashboard and event page)
 
 To add short names for more courses, edit `src/server/data/courses.json`.
 
+## Acknowledgements
+
+Many thanks to [TUM-Dev/CalendarProxy](https://github.com/TUM-Dev/CalendarProxy) and its contributors. This project
+is a TypeScript rewrite based on their work, and wouldn't exist without it.
+
 ## License
 
 GPL-2.0, like the upstream project this is derived from.
